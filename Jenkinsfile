@@ -23,6 +23,15 @@ pipeline{
                 }
             }
         }
+        stage('Create Env File') {
+            steps {
+                sh '''
+                echo "PORT=3000" > .env
+                echo "MONGO_URI=mongodb://mongo:27017/cicd" >> .env
+                echo "JWT_SECRET=secretKeyforjwtabchbcanafn" >> .env
+                '''
+            }
+        }
         stage('Deploy'){
             steps{
                 script{
