@@ -9,7 +9,7 @@ services:
     depends_on:
       - mongodb
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - MONGO_URI=mongodb://mongodb:27017/cicd
       - JWT_SECRET=${JWT_SECRET}
     restart: always
 
