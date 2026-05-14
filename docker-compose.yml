@@ -17,8 +17,8 @@ services:
     container_name: mongo-db
     ports:
       - "27018:27017"
-    env_file:
-      - .env
+    environment:
+      - JWT_SECRET = ${JWT_SECRET}
     volumes:
       - mongo-data:/data/db
     restart: always
