@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Deployment</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-zinc-950 text-white min-h-screen flex items-center justify-center">
+
+    <div class="w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl p-8">
+
+        <!-- Heading -->
+        <h1 class="text-3xl font-bold mb-2">Create Deployment</h1>
+        <p class="text-zinc-400 text-sm mb-6">
+            Connect a GitHub repo and deploy your application.
+        </p>
+
+        <!-- Form -->
+        <form action="/deploy" method="post" class="space-y-5">
+
+            <!-- Project Name -->
+            <div>
+                <label class="text-sm text-zinc-300">Project Name</label>
+                <input
+                    type="text"
+                    name="projectName"
+                    placeholder="e.g. CICD Playground"
+                    class="w-full mt-2 px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl outline-none focus:border-blue-500"
+                    required
+                />
+            </div>
+
+            <!-- GitHub URL -->
+            <div>
+                <label class="text-sm text-zinc-300">GitHub Repository URL</label>
+                <input
+                    type="text"
+                    name="repoUrl"
+                    placeholder="https://github.com/user/repo"
+                    class="w-full mt-2 px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl outline-none focus:border-blue-500"
+                    required
+                />
+            </div>
+
+            <!-- Branch -->
+            <div>
+                <label class="text-sm text-zinc-300">Branch</label>
+                <input
+                    type="text"
+                    name="branch"
+                    value="main"
+                    class="w-full mt-2 px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl outline-none focus:border-blue-500"
+                />
+            </div>
+
+            <!-- Deploy Button -->
+            <button
+                type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 transition py-3 rounded-xl font-semibold"
+            >
+                Deploy Now
+            </button>
+
+        </form>
+
+        <!-- Back -->
+        <div class="mt-6 text-center">
+            <a href="/dashboard" class="text-sm text-zinc-400 hover:text-white">
+                ← Back to Dashboard
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>

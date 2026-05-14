@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title>Dashboard | CI/CD Playground</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-zinc-950 text-white min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-zinc-900 border-r border-zinc-800 p-6">
+        <h1 class="text-2xl font-bold mb-8">CI/CD Panel</h1>
+
+        <nav class="space-y-4 text-sm">
+            <a href="/dashboard" class="block text-blue-400">Dashboard</a>
+            <a href="/deploy" class="block hover:text-blue-400">New Deployment</a>
+            <a href="/project" class="block hover:text-blue-400">Projects</a>
+            <a href="/logout" class="block text-red-400">Logout</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-3xl font-bold">
+                    Welcome, <%= user.username %>
+                </h2>
+                <p class="text-zinc-400 text-sm mt-1">
+                    Manage your deployments and projects
+                </p>
+            </div>
+
+            <a href="/deploy"
+               class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl font-semibold">
+                + New Deployment
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-3 gap-6 mb-10">
+
+            <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-xl">
+                <p class="text-zinc-400 text-sm">Total Projects</p>
+                <h3 class="text-2xl font-bold mt-2"><%= stats.projects %></h3>
+            </div>
+
+            <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-xl">
+                <p class="text-zinc-400 text-sm">Deployments</p>
+                <h3 class="text-2xl font-bold mt-2"><%= stats.deployments %></h3>
+            </div>
+
+            <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-xl">
+                <p class="text-zinc-400 text-sm">Active Builds</p>
+                <h3 class="text-2xl font-bold mt-2"><%= stats.active %></h3>
+            </div>
+
+        </div>
+
+        <!-- Recent Deployments -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+
+            <h3 class="text-xl font-bold mb-4">Recent Deployments</h3>
+
+            <table class="w-full text-sm text-left">
+
+                <thead class="text-zinc-400 border-b border-zinc-800">
+                    <tr>
+                        <th class="py-2">Project</th>
+                        <th>Status</th>
+                        <th>Branch</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <% deployments.forEach(dep => { %>
+                        <tr class="border-b border-zinc-800">
+                            <td class="py-3"><%= dep.projectName %></td>
+
+                            <td>
+                                <span class="
+                                    px-2 py-1 rounded text-xs
+                                    <%= dep.status === 'success' ? 'bg-green-600' : '' %>
+                                    <%= dep.status === 'failed' ? 'bg-red-600' : '' %>
+                                    <%= dep.status === 'building' ? 'bg-yellow-600' : '' %>
+                                ">
+                                    <%= dep.status %>
+                                </span>
+                            </td>
+
+                            <td><%= dep.branch %></td>
+                            <td><%= dep.createdAt %></td>
+                        </tr>
+                    <% }) %>
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </main>
+
+</body>
+</html>
