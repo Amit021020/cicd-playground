@@ -1,8 +1,7 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: amit021020/cicd-playground-app:latest
+      
     container_name: node-app
     ports:
       - 3000:3000
