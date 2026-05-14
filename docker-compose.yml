@@ -8,9 +8,8 @@ services:
       - 3000:3000
     depends_on:
       - mongodb
-    environment:
-      - JWT_SECRET=${JWT_SECRET}
-      - MONGO_URI=${MONGO_URI}
+    env_file:
+      - .env
     restart: always
 
   mongodb:
