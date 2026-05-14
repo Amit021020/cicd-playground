@@ -6,7 +6,9 @@ const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const config = require("./configs/config");
 
+const connectDB = require("./config/mongoose-connection");
 
+connectDB();
 
 // ROUTES
 const authRoutes = require("./routes/authRoutes");
