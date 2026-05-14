@@ -4,6 +4,8 @@ const app = express();
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
+const config = require("./configs/config");
+
 
 mongoose.connect(config.mongoURI)
   .then(() => console.log("MongoDB connected"))
@@ -34,7 +36,6 @@ app.use("/dashboard", dashboardRoutes);
 app.use("/deploy", deploymentRoutes);
 app.use("/deployments/logs", logsRoutes);
 
-const config = require("./configs/config");
 
 app.listen(config.port, () => {
     console.log("Server running on port", config.port);
