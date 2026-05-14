@@ -9,7 +9,8 @@ services:
     depends_on:
       - mongodb
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/cicd
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
     restart: always
 
   mongodb:
@@ -17,8 +18,7 @@ services:
     container_name: mongo-db
     ports:
       - "27018:27017"
-    environment:
-      - JWT_SECRET=${JWT_SECRET}
+    
     volumes:
       - mongo-data:/data/db
     restart: always
