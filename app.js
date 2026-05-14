@@ -29,9 +29,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
 // ROUTES
-app.get("/",(req,res)=>{
-    console.log(config.mongoURI)
-})
 app.use(authRoutes);
 app.use("/project", projectRoutes);
 app.use("/dashboard", dashboardRoutes);
