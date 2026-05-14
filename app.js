@@ -27,7 +27,7 @@ app.use("/dashboard", dashboardRoutes);
 app.use("/deploy", deploymentRoutes);
 app.use("/deployments/logs", logsRoutes);
 
-const config = require("./config/config");
+const config = require("./configs/config");
 
 app.listen(config.port, () => {
     console.log("Server running on port", config.port);

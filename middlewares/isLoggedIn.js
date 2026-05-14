@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user-model");
-const config = require("../config/config");
+const config = require("../configs/config");
 
 async function isLoggedIn(req, res, next) {
     const token = req.cookies.token;

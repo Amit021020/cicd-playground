@@ -1,6 +1,6 @@
 const { exec } = require("child_process");
 const path = require("path");
-    const config = require("../config/config");
+    const config = require("../configs/config");
 
 
 async function buildAndRun(deploymentId, repoUrl, logFn) {
