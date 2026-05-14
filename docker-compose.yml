@@ -8,8 +8,9 @@ services:
       - 3000:3000
     depends_on:
       - mongodb
-    env_file:
-      - .env
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/cicd
+      - JWT_SECRET="abcabcabcab"
     restart: always
 
   mongodb:
