@@ -3,7 +3,6 @@ const deploymentModel = require("../models/deployment-model");
 const workerService = require("../services/workerService");
 
 exports.deploy = async (req, res) => {
-
     const { projectname, repoUrl, branch } = req.body;
 
     const project = await projectModel.create({
@@ -23,8 +22,8 @@ exports.deploy = async (req, res) => {
 
     workerService.startDeployment(
         deployment._id,
-        deployment.repoUrl,
-        deployment.branch
+        project.repoUrl,
+        project.branch
     );
 
     res.redirect("/deployments/logs/" + deployment._id);
