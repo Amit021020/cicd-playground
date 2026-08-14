@@ -1,21 +1,11 @@
 const { exec } = require("child_process");
 const config = require("../configs/config");
-console.log("===== DOCKER DEBUG =====");
-console.log("USER:", process.env.USER);
-console.log("PATH:", process.env.PATH);
-console.log("PWD:", process.cwd());
-console.log("========================");
+
 function runCommand(command) {
     return new Promise((resolve, reject) => {
         exec(command, (error, stdout, stderr) => {
-
-            console.log("COMMAND:", command);
-            console.log("ERROR:", error?.message);
-            console.log("STDOUT:", stdout);
-            console.log("STDERR:", stderr);
-
             if (error) {
-                reject(new Error(stderr || error.message));
+                reject(new Error(stderr?.trim() || error.message));
                 return;
             }
 
@@ -23,12 +13,44 @@ function runCommand(command) {
         });
     });
 }
+
+async function getExposedPort(imageName) {
+    const output = await runCommand(
+        `docker image inspect "${imageName}" --format '{{json .Config.ExposedPorts}}'`
+    );
+
+    if (!output || output === "null" || output === "{}") {
+        throw new Error(
+            "No exposed port found in Docker image. Add EXPOSE <port> to the Dockerfile."
+        );
+    }
+
+    const exposedPorts = Object.keys(JSON.parse(output));
+
+    if (exposedPorts.length === 0) {
+        throw new Error("Docker image does not expose any port.");
+    }
+
+    // Example: ["5000/tcp"]
+    // Take the first exposed TCP port.
+    const tcpPort = exposedPorts.find(port => port.endsWith("/tcp"));
+
+    if (!tcpPort) {
+        throw new Error("No TCP exposed port found in Docker image.");
+    }
+
+    return tcpPort.split("/")[0];
+}
+
 async function buildAndRun(deploymentId, repoUrl, branch, logFn) {
     const workDir = `${config.docker.tempDir}/${deploymentId}`;
     const imageName = `deploy-${deploymentId}`;
 
     try {
+        // --------------------------------
         // Clone repository
+        // --------------------------------
+
         await logFn(`Cloning branch '${branch}'...`);
 
         await runCommand(
@@ -37,7 +59,11 @@ async function buildAndRun(deploymentId, repoUrl, branch, logFn) {
 
         await logFn("Repository cloned successfully");
 
+
+        // --------------------------------
         // Build Docker image
+        // --------------------------------
+
         await logFn("Building Docker image...");
 
         await runCommand(
@@ -46,39 +72,84 @@ async function buildAndRun(deploymentId, repoUrl, branch, logFn) {
 
         await logFn("Docker image built successfully");
 
+
+        // --------------------------------
+        // Detect exposed port
+        // --------------------------------
+
+        await logFn("Detecting exposed port...");
+
+        const containerPort = await getExposedPort(imageName);
+
+        await logFn(
+            `Detected container port: ${containerPort}`
+        );
+
+
+        // --------------------------------
         // Start container
+        // --------------------------------
+
         await logFn("Starting Docker container...");
 
         const containerId = await runCommand(
-            `docker run -d -p 0:3000 "${imageName}"`
+            `docker run -d -p 0:${containerPort} "${imageName}"`
         );
 
         await logFn(`Container started: ${containerId}`);
 
-        // Get dynamically assigned port
-        const port = await runCommand(
-            `docker port "${containerId}" 3000`
+
+        // --------------------------------
+        // Get assigned host port
+        // --------------------------------
+
+        const portMapping = await runCommand(
+            `docker port "${containerId}" ${containerPort}`
         );
 
         /*
-         * docker port normally returns something like:
-         * 0.0.0.0:49152
+         * Example:
          *
-         * Convert it into a usable URL.
+         * 0.0.0.0:32769
+         * [::]:32769
          */
-        const hostPort = port.split(":").pop();
+
+        const hostPort = portMapping
+            .split("\n")[0]
+            .split(":")
+            .pop()
+            .trim();
+
+        if (!hostPort) {
+            throw new Error("Unable to determine assigned host port.");
+        }
+
+
+        // --------------------------------
+        // Application URL
+        // --------------------------------
 
         const deployedUrl = `http://localhost:${hostPort}`;
 
-        await logFn(`Application available at ${deployedUrl}`);
+        await logFn(
+            `Application available at ${deployedUrl}`
+        );
+
+        await logFn("Deployment completed successfully");
+
 
         return {
             containerId,
+            containerPort,
+            hostPort,
             deployedUrl
         };
 
     } catch (error) {
-        await logFn(`Docker deployment failed: ${error.message}`);
+
+        await logFn(
+            `Docker deployment failed: ${error.message}`
+        );
 
         throw error;
     }
