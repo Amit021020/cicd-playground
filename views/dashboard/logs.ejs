@@ -53,7 +53,12 @@
 
                 <% deployment.logs.forEach(log => { %>
                     <div class="text-green-400">
-                        [<%= new Date(log.time).toLocaleTimeString() %>]
+                        <%= new Date(log.time).toLocaleTimeString("en-IN", {
+                            timeZone: "Asia/Kolkata",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit"
+                        }) %>
                         <%= log.message %>
                     </div>
                 <% }) %>
