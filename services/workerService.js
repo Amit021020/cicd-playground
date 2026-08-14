@@ -1,59 +1,60 @@
 const deploymentModel = require("../models/deployment-model");
 const dockerService = require("./dockerService");
 
-// helper outside (IMPORTANT)
-async function addLog(deployment, message) {
-    deployment.logs.push({
-        message,
-        time: new Date()
-    });
-    await deployment.save();
-}
-
 async function startDeployment(deploymentId, repoUrl) {
 
     const deployment = await deploymentModel.findById(deploymentId);
     if (!deployment) return;
 
+    // Queue database writes so multiple log messages don't overwrite each other
+    let saveQueue = Promise.resolve();
+
+    function addLog(message) {
+        saveQueue = saveQueue.then(async () => {
+            deployment.logs.push({
+                message,
+                time: new Date()
+            });
+
+            await deployment.save();
+        });
+
+        return saveQueue;
+    }
+
     try {
 
-        // prevent rerun (safety check)
+        // Prevent rerun
         if (deployment.status !== "queued") return;
 
         deployment.status = "building";
-        await addLog(deployment, "Build started");
+        await deployment.save();
+
+        await addLog("Build started");
 
         const containerId = await dockerService.buildAndRun(
             deploymentId,
             repoUrl,
             async (msg) => {
-                await addLog(deployment, msg);
+                await addLog(msg);
             }
         );
 
         deployment.status = "success";
         deployment.containerId = containerId;
-        deployment.deployedUrl = `http://localhost:3000`;
-        let saveQueue = Promise.resolve();
+        deployment.deployedUrl = "http://localhost:3000";
 
-        async function addLog(deployment, message) {
-            saveQueue = saveQueue.then(async () => {
-                deployment.logs.push({
-                    message,
-                    time: new Date()
-                });
+        await deployment.save();
 
-                await deployment.save();
-            });
-
-            return saveQueue;
-        }
-
+        await addLog("Deployment successful");
 
     } catch (err) {
 
         deployment.status = "failed";
-        await addLog(deployment, "Deployment failed: " + err);
+
+        await addLog(
+            "Deployment failed: " + err.message
+        );
 
         await deployment.save();
     }

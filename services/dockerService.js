@@ -1,63 +1,47 @@
-const deploymentModel = require("../models/deployment-model");
-const dockerService = require("./dockerService");
+const { exec } = require("child_process");
+const path = require("path");
+    const config = require("../configs/config");
 
-async function startDeployment(deploymentId, repoUrl) {
 
-    const deployment = await deploymentModel.findById(deploymentId);
-    if (!deployment) return;
+async function buildAndRun(deploymentId, repoUrl, logFn) {
 
-    // Queue database writes so multiple log messages don't overwrite each other
-    let saveQueue = Promise.resolve();
 
-    function addLog(message) {
-        saveQueue = saveQueue.then(async () => {
-            deployment.logs.push({
-                message,
-                time: new Date()
+    const workDir = `${config.docker.tempDir}/${deploymentId}`; 
+
+    return new Promise((resolve, reject) => {
+
+        logFn("Cloning repository...");
+
+        exec(`rm -rf ${workDir} && git clone ${repoUrl} ${workDir}`, (err) => {
+            if (err) return reject("Git clone failed");
+
+            logFn("Repository cloned");
+
+            logFn("Building Docker image...");
+
+            exec(`docker build -t deploy-${deploymentId} ${workDir}`, (err) => {
+                if (err) return reject("Docker build failed");
+
+                logFn("Docker image built");
+
+                logFn("Running container...");
+
+                exec(
+                    `docker run -d -p 0:3000 deploy-${deploymentId}`,
+                    (err, stdout) => {
+
+                        if (err) return reject("Docker run failed");
+
+                        const containerId = stdout.trim();
+
+                        logFn("Container started: " + containerId);
+
+                        resolve(containerId);
+                    }
+                );
             });
-
-            await deployment.save();
         });
-
-        return saveQueue;
-    }
-
-    try {
-
-        // Prevent rerun
-        if (deployment.status !== "queued") return;
-
-        deployment.status = "building";
-        await deployment.save();
-
-        await addLog("Build started");
-
-        const containerId = await dockerService.buildAndRun(
-            deploymentId,
-            repoUrl,
-            async (msg) => {
-                await addLog(msg);
-            }
-        );
-
-        deployment.status = "success";
-        deployment.containerId = containerId;
-        deployment.deployedUrl = "http://localhost:3000";
-
-        await deployment.save();
-
-        await addLog("Deployment successful");
-
-    } catch (err) {
-
-        deployment.status = "failed";
-
-        await addLog(
-            "Deployment failed: " + err.message
-        );
-
-        await deployment.save();
-    }
+    });
 }
 
-module.exports = { startDeployment };
+module.exports = { buildAndRun };
