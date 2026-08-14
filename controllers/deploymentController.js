@@ -25,7 +25,7 @@ exports.deploy = async (req, res) => {
         deployment._id,
         deployment.repoUrl,
         deployment.branch
-        );
+    );
 
     res.redirect("/deployments/logs/" + deployment._id);
 };
