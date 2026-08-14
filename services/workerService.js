@@ -1,15 +1,22 @@
 const deploymentModel = require("../models/deployment-model");
 const dockerService = require("./dockerService");
 
-async function startDeployment(deploymentId, repoUrl) {
-
+async function startDeployment(deploymentId, repoUrl, branch) {
     const deployment = await deploymentModel.findById(deploymentId);
-    if (!deployment) return;
 
-    // Queue database writes so multiple log messages don't overwrite each other
+    if (!deployment) {
+        throw new Error("Deployment not found");
+    }
+
+    // Prevent the same deployment from running twice
+    if (deployment.status !== "queued") {
+        return;
+    }
+
+    // Queue database writes to prevent concurrent log saves
     let saveQueue = Promise.resolve();
 
-    function addLog(message) {
+    const addLog = (message) => {
         saveQueue = saveQueue.then(async () => {
             deployment.logs.push({
                 message,
@@ -20,44 +27,44 @@ async function startDeployment(deploymentId, repoUrl) {
         });
 
         return saveQueue;
-    }
+    };
 
     try {
-
-        // Prevent rerun
-        if (deployment.status !== "queued") return;
-
+        // Mark deployment as building
         deployment.status = "building";
         await deployment.save();
 
-        await addLog("Build started");
+        await addLog("Deployment started");
+        await addLog(`Repository: ${repoUrl}`);
+        await addLog(`Branch: ${branch}`);
 
-        const containerId = await dockerService.buildAndRun(
+        // Build and start Docker container
+        const result = await dockerService.buildAndRun(
             deploymentId,
             repoUrl,
-            async (msg) => {
-                await addLog(msg);
-            }
+            branch,
+            addLog
         );
 
+        // Deployment successful
         deployment.status = "success";
-        deployment.containerId = containerId;
-        deployment.deployedUrl = "http://localhost:3000";
+        deployment.containerId = result.containerId;
+        deployment.deployedUrl = result.deployedUrl;
 
         await deployment.save();
 
-        await addLog("Deployment successful");
+        await addLog("Deployment completed successfully");
 
-    } catch (err) {
+    } catch (error) {
+        console.error("Deployment error:", error);
 
         deployment.status = "failed";
-
-        await addLog(
-            "Deployment failed: " + err.message
-        );
-
         await deployment.save();
+
+        await addLog(`Deployment failed: ${error.message}`);
     }
 }
 
-module.exports = { startDeployment };
+module.exports = {
+    startDeployment
+};

@@ -21,7 +21,11 @@ exports.deploy = async (req, res) => {
         deployedUrl: null
     });
 
-    workerService.startDeployment(deployment._id,project.repoUrl);
+    workerService.startDeployment(
+        deployment._id,
+        deployment.repoUrl,
+        deployment.branch
+        );
 
     res.redirect("/deployments/logs/" + deployment._id);
 };
