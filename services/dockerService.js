@@ -1,9 +1,19 @@
 const { exec } = require("child_process");
 const config = require("../configs/config");
-
+console.log("===== DOCKER DEBUG =====");
+console.log("USER:", process.env.USER);
+console.log("PATH:", process.env.PATH);
+console.log("PWD:", process.cwd());
+console.log("========================");
 function runCommand(command) {
     return new Promise((resolve, reject) => {
         exec(command, (error, stdout, stderr) => {
+
+            console.log("COMMAND:", command);
+            console.log("ERROR:", error?.message);
+            console.log("STDOUT:", stdout);
+            console.log("STDERR:", stderr);
+
             if (error) {
                 reject(new Error(stderr || error.message));
                 return;
@@ -13,7 +23,6 @@ function runCommand(command) {
         });
     });
 }
-
 async function buildAndRun(deploymentId, repoUrl, branch, logFn) {
     const workDir = `${config.docker.tempDir}/${deploymentId}`;
     const imageName = `deploy-${deploymentId}`;
