@@ -27,7 +27,27 @@ CI/CD Playground allows users to:
 The primary goal of this project was to gain practical experience with **DevOps, CI/CD automation, containerization, Jenkins, Docker, and deployment workflows**.
 
 ---
+## 📸 Screenshots
 
+### Login
+
+![Login](/screenshots/login.png)
+
+### Deployment Dashboard
+
+![Dashboard](screenshots/DashBoard.png)
+
+### Deployment Creation
+
+![Deployment Creation](screenshots/CreateDeployment.png.png)
+
+### Successful Deployment
+
+![Deployment Success](screenshots/logs.png.png)
+
+### Jenkins Pipeline
+
+![Jenkins](screenshots/jenkins-pipeline-overview.png)
 ## ✨ Features
 
 ### 👤 Authentication
@@ -327,7 +347,7 @@ Make sure the following are installed:
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/<your-repository>.git
+git clone https://github.com/Amit021020/cicd-playground.git
 ```
 
 ```bash
@@ -564,8 +584,7 @@ The goal was to understand how platforms can automate the journey from a develop
 
 **Amit Suyal**
 
-This project was created as part of my journey into **DevOps, Cloud Computing**.
-
+Built as a hands-on DevOps project to understand CI/CD automation, Docker containerization, Jenkins pipelines, GitHub-based deployments, and application lifecycle management.
 ---
 
 ## ⭐ If You Found This Project Useful
