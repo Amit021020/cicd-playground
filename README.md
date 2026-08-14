@@ -41,7 +41,7 @@ The primary goal of this project was to gain practical experience with **DevOps,
 
 ![Deployment Creation](screenshots/CreateDeployment.png)
 
-### Successful Deployment
+### Deployment Logs
 
 ![Deployment Success](screenshots/logs.png)
 
