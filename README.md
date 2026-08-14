@@ -39,11 +39,11 @@ The primary goal of this project was to gain practical experience with **DevOps,
 
 ### Deployment Creation
 
-![Deployment Creation](screenshots/CreateDeployment.png.png)
+![Deployment Creation](screenshots/CreateDeployment.png)
 
 ### Successful Deployment
 
-![Deployment Success](screenshots/logs.png.png)
+![Deployment Success](screenshots/logs.png)
 
 ### Jenkins Pipeline
 
